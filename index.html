@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMR SMART CHAIN - Whitepaper</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A0E17;
+            --secondary: #0F1A30;
+            --accent: #00D2FF;
+            --accent-gradient: linear-gradient(90deg, #00D2FF 0%, #3A7BD5 100%);
+            --gold: #FFD700;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+            --card-bg: rgba(15, 26, 48, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --success: #48BB78;
+            --warning: #ECC94B;
+            --danger: #F56565;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.8;
+            font-weight: 300;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(58, 123, 213, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 70%, rgba(0, 210, 255, 0.1) 0%, transparent 20%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        /* 3D Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.4;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--accent-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 99;
+            box-shadow: 0 4px 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .scroll-top.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 210, 255, 0.5);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(10, 14, 23, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            padding: 15px 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav ul li a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            position: relative;
+            padding: 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        nav ul li a:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #00D2FF;
+        }
+
+        nav ul li a:hover:after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: var(--accent-gradient);
+            padding: 10px 25px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 210, 255, 0.4);
+        }
+
+        .nav-cta:after {
+            display: none;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            height: 3px;
+            width: 100%;
+            background: var(--text-primary);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 5% 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-text h1 span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 90%;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 210, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 210, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .orb {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #3A7BD5, #00D2FF);
+            box-shadow: 
+                0 0 100px rgba(0, 210, 255, 0.5),
+                inset 0 0 50px rgba(255, 255, 255, 0.2);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .orb:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+        }
+
+        section {
+            padding: 100px 5%;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 30px auto 0;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .tech-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .tech-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0, 210, 255, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .tech-card:hover:before {
+            opacity: 1;
+        }
+
+        .tech-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--accent-gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2rem;
+        }
+
+        .tech-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .tech-card p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .tokenomics-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        .token-details {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .token-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .token-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .token-info h4 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .token-info p {
+            color: var(--text-secondary);
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: var(--accent-gradient);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            padding: 20px 30px;
+            position: relative;
+            width: 50%;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 40px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            padding-right: 70px;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 70px;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border: 4px solid var(--primary);
+            top: 30px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(odd)::after {
+            right: -10px;
+        }
+
+        .timeline-item:nth-child(even)::after {
+            left: -10px;
+        }
+
+        .timeline-date {
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .timeline-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+.team-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    margin-top: 50px;
+}
+
+
+        .team-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .member-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: white;
+        }
+
+        .member-name {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .member-role {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .team-card p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        footer {
+            background: var(--secondary);
+            padding: 80px 5% 40px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-description {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--accent-gradient);
+            transform: translateY(-5px);
+        }
+
+        .footer-links h3 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-links h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links ul li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .footer-links ul li a:hover {
+            color: var(--accent);
+            padding-left: 10px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 1200px) {
+            .hero-text h1 {
+                font-size: 3rem;
+            }
+            
+            .orb {
+                width: 350px;
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 70px;
+            }
+            
+            .hero-text p {
+                max-width: 100%;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .tokenomics-container {
+                grid-template-columns: 1fr;
+                gap: 70px;
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 30px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+            
+            .timeline-item::after {
+                left: 22px;
+            }
+            
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(10, 14, 23, 0.95);
+                flex-direction: column;
+                padding: 20px;
+                text-align: center;
+                border-top: 1px solid var(--glass-border);
+            }
+            
+            nav ul.active {
+                display: flex;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .orb {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .tech-grid, .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            header {
+                padding: 15px 20px;
+            }
+            
+            .hero {
+                padding: 100px 20px 60px;
+            }
+            
+            section {
+                padding: 80px 20px;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero-text p {
+                font-size: 1.1rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            .orb {
+                width: 220px;
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="scroll-top" id="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <header id="header">
+        <div class="logo">
+            <div class="logo-img">
+                <i class="fas fa-fish"></i>
+            </div>
+            <div class="logo-text">AMR SMART CHAIN</div>
+        </div>
+        
+        <nav>
+            <ul id="nav-menu">
+                <li><a href="#vision">Vision</a></li>
+                <li><a href="#technology">Technology</a></li>
+                <li><a href="#tokenomics">Tokenomics</a></li>
+                <li><a href="#roadmap">Roadmap</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#" class="nav-cta">Whitepaper</a></li>
+            </ul>
+        </nav>
+        
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>The Future of <span>Quantum-Resistant</span> Blockchain</h1>
+                <p>AMR Smart Chain is building the world's first quantum-resistant Layer 1 blockchain, powered by cosmic mining and the first-ever digital precious metals and assets in history. It creates true digital scarcity and enables financial freedom for everyone – without fear of censorship, centralized control, or quantum threats. Beyond blockchain, AMR Smart Chain aims to power a fully integrated Metaverse and develop advanced artificial intelligence, shaping the future of digital economies and immersive experiences..</p>
+                <div class="hero-buttons">
+	<div class="hero-buttons">
+    	<a href="#roadmap" class="btn btn-primary">show roadmap</a>
+    	<a href="#team" class="btn btn-secondary">team</a>
+</div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="orb" id="orb"></div>
+                <div class="particles" id="particles"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision Section -->
+    <section id="vision">
+        <div class="section-header">
+            <h2 class="section-title">Our Vision</h2>
+            <p class="section-subtitle">Our Vision: Shaping the Next Era of Global Digital Sovereignty
+
+AMR Smart Chain is pioneering a new global economic and social paradigm—a self-sustaining, decentralized ecosystem that empowers individuals with full control over their digital assets, identity, and interactions. We are not building just another blockchain; we are laying the foundational layer for a resilient, secure, and equitable digital universe capable of withstanding the challenges of today and tomorrow.
+
+We envision a world where:
+
+Security is Absolute and Future-Proof: Financial systems should endure beyond today’s threats. By integrating quantum-resistant cryptography (Dilithium) at the core and implementing a multi-layered security model, AMR Smart Chain ensures that user assets, communications, and data remain protected for generations, even in the quantum era.
+
+Intelligence Drives Fairness: Consensus should reward fairness and efficiency, not raw computational power. Through our Proof-of-AI consensus mechanism, an on-chain AI oracle deterministically and intelligently orders transactions, minimizing front-running, optimizing network resources, and creating a transparent and meritocratic environment for all participants.
+
+Digital Scarcity Creates Lasting Value: True value arises from scarcity. Our economic model, built around a fixed supply of 19 million AMR coins and the revolutionary Cosmic Mining process, is complemented by the first-ever digital precious metals and assets in history. This foundation establishes a resilient economy, with network reserves estimated at $100 trillion, ensuring sustainable, tangible value for all participants.
+
+Technology Serves Humanity: Decentralized innovation should empower individuals. By providing a vertically integrated ecosystem—including the Orvexa Virtual Machine (OVM), the secure Orvexa smart contract language, and the fully integrated SiriusMedia social platform—we give developers and users the tools to create, build, and connect freely without intermediaries.
+
+Decentralized Social Media: SiriusMedia ensures freedom of expression, censorship resistance, and complete control over user data. Unlike traditional platforms, users own their content, connections, and reputation, forming a fair and open digital society.
+
+Private & Powerful Chat: Every conversation is encrypted and decentralized, ensuring absolute privacy and security. Users can communicate freely without fear of surveillance, data leaks, or centralized control, while enjoying advanced features powered by on-chain intelligence.
+
+Decentralization Extends Beyond Earth: Our vision transcends terrestrial limits. We are building the infrastructure for a post-internet decentralized space network, enabling secure autonomous communication and economic systems that will power the future of humanity in the Metaverse and beyond.
+
+AMR Smart Chain is our commitment to a future where every individual can own, innovate, trade, communicate, and build without permission, in a limitless, secure, and self-sustaining digital universe—the dawn of a new era of global digital sovereignty..</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Global</h3>
+                <p>AMR Smart Chain is the world’s first quantum-resistant Layer 1 blockchain, powered by cosmic mining and the first-ever digital precious metals and assets. It creates true digital scarcity, backed by a network reserve valued at $100 trillion, and enables individuals to own, trade, communicate, and innovate freely in a secure, decentralized ecosystem.
+
+With Proof-of-AI consensus, advanced quantum-resistant security, and a vertically integrated ecosystem—including the Orvexa Virtual Machine (OVM), Orvexa smart contract language, SiriusMedia decentralized social platform, and fully encrypted chat—AMR Smart Chain empowers a global community with transparency, privacy, and fairness.
+
+Beyond Earth, the network aims to power the Metaverse and a decentralized space infrastructure, laying the foundation for a truly limitless, secure, and self-sustaining digital universe—the dawn of a new era of global digital sovereignty.</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Security</h3>
+                <p>AMR Smart Chain is built with state-of-the-art, quantum-resistant security at its core. All assets, transactions, and communications on the network are protected using Dilithium-based cryptography. The network also leverages onion routing and a decentralized relay architecture, making communications fully encrypted, extremely difficult to trace, and resistant to censorship.
+
+Our multi-layered security model continuously evolves through proactive updates and advanced monitoring to detect and mitigate potential threats. Thanks to the decentralized architecture, user data and assets remain fully under their control while ensuring the highest levels of privacy.
+
+At the same time, AMR Smart Chain complies with global laws and regulations. We actively combat terrorism financing and money laundering through robust AML/CFT programs and cooperate with legal authorities when required. We do this in a way that respects user privacy and aligns with the principles of decentralization—utilizing privacy-preserving compliance technologies such as selective disclosure, zero-knowledge proofs, and compliance mechanisms designed to minimize reliance on personal data.
+
+By combining advanced quantum security, true privacy, practical decentralization, and effective legal compliance, AMR Smart Chain provides a secure, flexible, and globally compliant environment for individuals, businesses, and digital communities.</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Efficiency</h3>
+                <p>AMR Smart Chain is designed for maximum efficiency and scalability. Its innovative architecture, including the Orvexa Virtual Machine (OVM) and optimized smart contract execution, ensures high throughput with minimal latency, allowing thousands of transactions per second without compromising security.
+
+The network leverages Proof-of-AI consensus to intelligently prioritize and order transactions, optimizing resource usage and minimizing computational waste. This approach not only accelerates transaction finality but also reduces energy consumption, making the network more sustainable than traditional blockchain systems.
+
+Through adaptive load balancing, parallel processing, and advanced data propagation mechanisms, AMR Smart Chain maintains consistent performance even under high network demand, ensuring reliability and smooth user experience for global applications, DeFi platforms, and decentralized communities.
+
+In short, AMR Smart Chain combines speed, scalability, and smart resource management to deliver one of the most efficient, resilient, and high-performing blockchain networks in the world.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technology">
+        <div class="section-header">
+            <h2 class="section-title">Technology</h2>
+            <p class="section-subtitle">We use the latest technologies to ensure superior performance, unparalleled security, and scalability to meet the needs of the future. We are constantly evolving security every day.</p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-server"></i>
+                </div>
+                <h3>Quantum-Resistant Layer 1</h3>
+                <p>The world's first quantum-resistant blockchain powered by cosmic mining, creating true digital scarcity and unbreakable security.</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <h3>Smart Contracts</h3>
+                <p>Advanced contracts built with robust security functionality and competitive execution capabilities.</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Advanced Privacy</h3>
+                <p>Privacy technology that enables proof of transactions without revealing details while maintaining regulatory compliance.</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h3>Cosmic Mining</h3>
+                <p>Unique mining mechanism powered by cosmic energy, creating true digital scarcity and sustainable blockchain infrastructure.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tokenomics Section -->
+    <section id="tokenomics">
+        <div class="section-header">
+            <h2 class="section-title">Tokenomics</h2>
+            <p class="section-subtitle">A carefully designed economic model to ensure sustainability, long-term growth, and value creation for token holders.</p>
+        </div>
+        
+        <div class="tokenomics-container">
+            <div class="chart-container" id="tokenomics-chart"></div>
+            
+            <div class="token-details">
+                <div class="token-item">
+                    <div class="token-color" style="background: #00D2FF;"></div>
+                    <div class="token-info">
+                        <h4>30% Staking Power</h4>
+                        <p>Dedicated to network security and validator rewards</p>
+                    </div>
+                </div>
+                
+                <div class="token-item">
+                    <div class="token-color" style="background: #3A7BD5;"></div>
+                    <div class="token-info">
+                        <h4>50% Metals & Assets</h4>
+                        <p>Backed by real-world assets and precious metals</p>
+                    </div>
+                </div>
+                
+                <div class="token-item">
+                    <div class="token-color" style="background: #FFD700;"></div>
+                    <div class="token-info">
+                        <h4>20% Novarium Coin</h4>
+                        <p>Special utility token for the Novarium ecosystem</p>
+                    </div>
+                </div>
+                
+                <div class="token-item">
+                    <div class="token-color" style="background: #F56565;"></div>
+                    <div class="token-info">
+                        <h4>Total Supply: 19M</h4>
+                        <p>Fixed limited supply creating extreme scarcity</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section id="roadmap">
+        <div class="section-header">
+            <h2 class="section-title">Roadmap</h2>
+            <p class="section-subtitle">An ambitious development journey to build an integrated ecosystem that provides real value to our community and users around the world.</p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-date">Phase 1</div>
+                <div class="timeline-content">
+                    <h3>Serious Application & Orvexa Language</h3>
+                    <p>Sirius is not just another social network—it is the next-generation decentralized social platform built entirely on AMR Smart Chain, designed to redefine ownership, freedom, and privacy in the digital world. Unlike traditional platforms that control your data and content, Sirius puts full power in the hands of users, creating a free, censorship-resistant environment where users truly own their identity and digital creations.
+
+Key Features of Sirius:
+
+Sovereign Identity: Every profile is a unique ProfileNFT, fully owned by the user. Your digital identity is no longer tied to a company server; it’s yours to control, transfer, or monetize freely.
+
+Full Content Ownership: Posts, media, and videos are stored on the decentralized IPFS network, with ownership recorded on the blockchain. Content cannot be deleted or altered by any centralized entity.
+
+Decentralized Creator Economy: Built-in tools allow creators to monetize directly through tipping, subscriptions, and paid content, using native ecosystem tokens to eliminate intermediaries and ensure creators receive full value.
+
+Rich Social Experience: Supports short and long posts, videos, encrypted direct messaging, and decentralized groups, providing a modern, secure, and engaging user experience.
+
+Orvexa & OVM – Powering Smart Contracts and Digital Assets:
+
+The Orvexa programming language and Orvexa Virtual Machine (OVM) form the backbone of innovation on AMR Smart Chain, giving developers unmatched security, speed, and asset management capabilities.
+
+High-Performance Virtual Machine: OVM executes smart contracts with low gas costs and high throughput, supporting complex operations natively for optimized efficiency.
+
+Designed for Digital Assets: Orvexa makes it easy to create and manage native coins, stablecoins, and digital minerals, enabling a robust and sustainable digital economy.
+
+Security-First Approach: Built-in protections prevent common vulnerabilities like re-entrancy and integer overflows, with automatic compiler checks to ensure contracts are safe before deployment.
+
+Seamless Ecosystem Integration: Developers can interact with core features such as IPFS storage and zero-knowledge proofs, enabling the creation of sophisticated, scalable, and fully decentralized dApps.
+
+By combining Sirius, Orvexa, and OVM, Step 1 of the roadmap empowers users and developers alike to own, innovate, and build without limits, setting the foundation for a truly decentralized digital universe.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Phase 2</div>
+                <div class="timeline-content">
+                    <h3>Operating System</h3>
+                    <p>Step two of our roadmap represents a revolutionary leap beyond the blockchain as a mere ledger. The Orca Operating System (Orca OS) transforms the blockchain into a fully integrated, decentralized computing environment, redefining what it means to run applications in a decentralized world.
+
+Traditional decentralized applications still rely on centralized operating systems like Windows or macOS, creating inherent points of failure and hidden centralization. Orca OS eliminates this limitation, providing a sovereign, ultra-fast, and fully secure computing environment where every component is decentralized from the ground up.
+
+Why Orca OS is Revolutionary
+
+Orca OS is not just a new Linux distribution—it is a new paradigm for computing. It serves as the interface between users, applications, and the decentralized universe. Applications no longer “connect” to the blockchain—they run directly inside a fully decentralized environment, where network services, storage, and identity are core, native components of the system kernel.
+
+Core Power: Blockchain + AI at the Heart of the OS
+
+Blockchain as the Kernel: AMRChain is not just a data layer—it is the central operating core. It manages application states, allocates computational resources through OVM, and enforces security at every level. The blockchain becomes a global decentralized computer, powering every interaction and operation.
+
+AI-Powered Performance: Deterministic AI models from our Proof-of-AI consensus run at the OS level, intelligently prioritizing tasks, allocating resources, and predicting application needs. This ensures lightning-fast, seamless performance, eliminating latency and inefficiencies common in traditional blockchain systems.
+
+From Kernel to User Interface: Every file saved is stored on IPFS, every application runs as a smart contract on OVM, and every user identity is a sovereign digital asset on the blockchain. Users enjoy a familiar interface while harnessing true decentralized power.
+
+Revolutionary Features of Orca OS
+
+Native Decentralization: Blockchain services, IPFS storage, and AI-driven resource management are built into the OS kernel, allowing developers using Orvexa to create powerful, fully integrated dApps effortlessly.
+
+Unparalleled Security: Orca OS inherits the highest levels of security from AMRChain, including quantum-resistant cryptography. Applications are protected at the kernel level, making attacks exponentially harder, while the blockchain ensures immutability and consensus-driven trust.
+
+High-Speed Efficiency: AI-driven resource management maximizes network throughput and computational efficiency, delivering performance on par with centralized systems, but with full decentralization, security, and privacy.
+
+End-to-End Control: Every process, from data storage to application execution, is transparent, auditable, and fully under user control, enabling a computing experience that is safe, efficient, and truly sovereign.
+
+In short, Orca OS is the logical evolution of the decentralized internet. It takes us from building standalone decentralized applications to creating entire decentralized computing environments. This foundation empowers the Metaverse and space economy and lays the groundwork for an entirely new era of global digital sovereignty.
+
+With Orca OS, we are not just imagining the future—we are building it, providing a secure, intelligent, and limitless platform for developers, creators, and users to innovate without boundaries.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Phase 3</div>
+                <div class="timeline-content">
+                    <h3>Omniverse Integration</h3>
+                    <p>Step three of our roadmap heralds the dawn of the Omniverse, a fully decentralized, hyper-realistic digital universe built atop Orca OS. The Omniverse is not a game or entertainment platform; it is a parallel, persistent reality where every action, creation, and decision has real-world significance.
+
+In the Omniverse, AMR is a true digital currency, fully integrated into the economy, providing tangible value for all interactions, trade, and ownership. This is a universe where strategy, innovation, and ambition translate directly into wealth, influence, and power—beyond simulations or entertainment.
+
+Beyond Worlds: Galaxies, Planets, and Civilizations
+
+The Omniverse spans entire galaxies, star systems, and planets, all procedurally generated yet entirely unique. Ownership is intergalactic and immutable via blockchain-based NFT deeds, giving pioneers true sovereignty over their assets.
+
+Players and participants can:
+
+Explore Uncharted Galaxies: Discover unique star systems, planets with diverse biomes, rare digital metals, and hidden opportunities.
+
+Claim and Build: Acquire uninhabited planets via Deed NFTs, establishing colonies, cities, industries, and civilizations.
+
+Create Economic Value: Every resource, infrastructure, and development contributes to a living economy fully driven by AMR, which can be converted into real-world value.
+
+A Real Economy, Not a Simulation
+
+The Omniverse economy is fully operational and tied to AMR’s real-world value, not points or in-game tokens. Participants can:
+
+Generate Wealth: Mine Digital Metals, trade resources, craft NFT-based assets, and create self-sustaining economic hubs.
+
+Govern and Trade: Control your territories, manage supply chains, and participate in decentralized marketplaces, with success directly tied to strategy, skill, and economic acumen.
+
+Participate in a Player-Driven Economy: Prices, demand, and supply are determined by participants, reflecting real market dynamics.
+
+Conflict, Strategy, and Sovereignty
+
+The Omniverse is a dynamic universe with interstellar competition and strategic challenges:
+
+Civilization Rivalries: Compete for control over strategic star systems and resource-rich planets.
+
+Planetary Defense and Conquest: Protect your assets or expand your empire through strategic planning and alliances.
+
+Challenges Beyond Combat: Encounter AI-driven cosmic entities and rare events, creating opportunities for unique rewards and scarce resources.
+
+Immersive Reality Powered by Orca OS
+
+The Omniverse leverages Orca OS for real-time blockchain integration, AI resource management, and decentralized governance.
+
+Persistent, Decentralized Reality: Every interaction is recorded, secure, and immutable on the blockchain.
+
+High-Fidelity Simulations: Procedurally generated worlds, AI-managed systems, and near-zero latency create an immersive, living digital universe.
+
+True Digital Sovereignty: Users retain full control over assets, identity, and creations, establishing a permanent, decentralized footprint.
+
+In short, the Omniverse is not a game—it is a real, decentralized universe where AMR is a true digital currency, where ownership, trade, and creation carry tangible value, and where participants can truly live, build, innovate, and thrive in a limitless digital cosmos.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Phase 4</div>
+                <div class="timeline-content">
+                    <h3>AMRChain Economy: Rare Assets, Digital Metals, and IonFluid</h3>
+                    <p>The AMRChain economy is fully backed by tangible digital assets, creating a self-sustaining, resilient ecosystem. Its value derives from Digital Metals, ultra-rare assets, and IonFluid — all driving real demand for AMR and BNB, while Novareum acts as a $19 Trillion stable monetary layer, ensuring transactional stability without inflation.
+
+1. Digital Metals — Immutable, Appreciating Assets
+
+Digital Metals are scarce, high-utility assets traded exclusively via P2P and controlled auctions. Each metal has a fixed initial offering price and is designed for continuous appreciation due to scarcity and Omniverse-level demand.
+
+Lexirium launches at $500
+
+Digital Gold begins at $1,000
+
+Digital Crystal is valued at $50,000
+
+Digital Diamond starts at $100,000
+
+Other rare gems range anywhere from $10 up to $1,000,000 depending on rarity and functionality
+
+These metals are essential for critical Omniverse applications, guaranteeing persistent demand and long-term value growth.
+
+2. IonFluid — The Blue Energy Powering the Omniverse
+
+IonFluid is the operational fuel of the Omniverse — powering cities, spacecraft, energy grids, and military technologies.
+
+Current Price: $1,000 (market-driven, fluctuates with supply & demand)
+
+Purchase Mechanism: Can only be bought using AMR or BNB.
+
+Deflationary Engine: 50% of every AMR/BNB purchase is permanently locked inside the network, causing positive scarcity pressure that continuously increases the value of both AMR and BNB.
+
+3. Dark Matter Shards — Planet-Generating Artifacts
+
+Each Dark Matter Shard spawns an entire self-governed planet with:
+
+Full Sovereignty & Governance
+
+Military & Infrastructure
+
+Exclusive Resources & Strategic Benefits
+
+Only 500,000 shards will ever exist — fully P2P tradable — making them the most powerful leverage assets in the Omniverse.
+
+4. AMR, BNB & Novareum — Economic Triforce
+
+AMR — Primary investment & governance asset. Staking AMR secures the network while increasing long-term value.
+
+BNB — Works alongside AMR as a dual-entry asset for purchasing metals and IonFluid.
+
+Novareum — Capped at $19 Trillion, with 90% locked for network utility. It ensures stable, non-inflationary liquidity for transactions while supporting scarcity-driven asset dynamics.
+
+⚠ Key Economic Engine: Every purchase via AMR or BNB results in 50% of the transaction being locked permanently — fueling positive deflation and exponential value growth for both tokens.
+
+5. Network Power & Economic Resilience
+
+Metals & rare planetary assets continuously appreciate through controlled scarcity and auction mechanisms.
+
+IonFluid purchases lock capital, strengthening AMR & BNB values.
+
+Novareum stabilizes trade without undermining scarcity or network-driven value.
+
+Final Insight
+
+AMRChain is not a speculative system — it is a fully asset-backed digital economy.
+Holders of AMR and BNB gain directly from industrial and Omniverse activities, while Novareum provides stable transactional liquidity.
+Digital Metals, IonFluid, and Dark Matter Shards generate unstoppable upward pressure on value, creating a secure, self-sustaining, scarcity-driven economic universe.
+
+Scarcity fuels value. Utility sustains it. AMRChain unites both.</p>
+                </div>
+            </div>
+            
+                        <div class="timeline-item">
+                <div class="timeline-date">Phase 5</div>
+                <div class="timeline-content">
+                    <h3>Strategic Partnership — AMRChain x Binance Smart Chain (BSC)</h3>
+                    <p>
+
+Phase 5: Strategic Partnership — AMRChain x Binance Smart Chain (BSC)
+Vision Statement
+
+AMRChain invites Binance to co-create the next era of decentralized finance.
+Our blockchain is self-sustaining, AI-powered, and quantum-secure, designed to integrate seamlessly with BNB’s ecosystem.
+This partnership aims to unlock unprecedented value for both networks, combining technological strength with liquidity and trust.
+
+Network Valuation: $100 Trillion USD in total digital asset reserves.
+
+Projected Annual Yield: ~$5 Million USD as initial average returns, expected to grow significantly as adoption increases.
+
+Unique Ecosystem: Complete ecosystem from trading, Omniverse assets, decentralized social media, and more — driving massive user engagement and network activity.
+
+Shared Goal: Building a Digital Economy That Breaks Limits
+
+Create exponential growth for AMR and BNB, rivaling top-tier digital assets like Bitcoin.
+
+AMRChain’s technology + Binance’s liquidity & credibility = a powerful economic engine for global expansion.
+
+Mutual development and scaling of both networks to reach new frontiers of adoption and utility.
+
+Economic Integration: AMR & BNB as the Heart of a New Digital Universe
+
+Key Initiatives:
+
+Exclusive Dual-Currency Ecosystem:
+
+All AMRChain assets (Digital Metals, IonFluid, virtual Omniverse properties) purchasable exclusively with AMR or BNB.
+
+Drives continuous high demand for both tokens.
+
+Dual Gas Fee System:
+
+Transaction fees payable in AMR or BNB, embedding BNB deeply into daily network activity and ensuring user flexibility.
+
+Value Retention & Revenue Sharing Engine:
+
+50% of all primary asset sales locked inside the network in AMR or BNB → positive scarcity-driven growth.
+
+25% allocated to Binance as direct revenue stream.
+
+25% retained for ongoing project development and innovation.
+
+Exclusive Asset Showcase: After Binance approves the partnership, a curated selection of $1 Million USD worth of premium AMRChain assets will be offered to Binance as a strategic demonstration of value.
+
+Beyond Technology: Regulatory-Ready Innovation
+
+AMRChain supports compliance while maintaining decentralization and user privacy.
+
+Together, we can set a benchmark for regulatory-friendly decentralized finance, enhancing Binance’s reputation as a trusted global platform.
+
+Future Vision: BNB at the Heart of the Omniverse
+
+AMRChain is building the Omniverse — a fully interconnected digital universe with immersive experiences.
+
+BNB will be integrated as a core utility token across all Omniverse products and experiences, ensuring long-term strategic relevance.
+
+Positions Binance as a central player in the next generation of digital ecosystems.
+
+Phase 5 Deliverables
+
+Formalize AMRChain x BSC integration.
+
+Deploy dual-currency ecosystem and dual gas model.
+
+Implement 50% lock mechanism for network growth.
+
+Launch joint strategic marketing and operational plan to highlight BNB’s key role in the Omniverse.
+
+Offer curated $1 Million USD AMRChain asset portfolio to Binance post-approval.
+
+Impact for Binance
+
+Direct revenue from AMRChain asset ecosystem (25% share).
+
+Increased BNB utility and adoption inside a high-demand, scarcity-driven economy.
+
+Long-term strategic positioning in the Omniverse and emerging digital asset infrastructure.
+
+Strategic preview of premium AMRChain assets, demonstrating potential value and network strength.</p>
+                </div>
+            </div>
+            
+                        <div class="timeline-item">
+                <div class="timeline-date">Phase 6</div>
+                <div class="timeline-content">
+                    <h3>Orvexa Language Enhancement</h3>
+                    <p>Orvexa is far more than a programming language—it’s a revolutionary platform empowering creators and developers to build complete digital economies and experiences directly on AMRChain. Its philosophy is simple yet powerful: everything is a smart contract—from currencies and websites to entire applications—unlocking new levels of true decentralization, ownership, and power.
+
+Decentralized Web, Reimagined
+
+In today’s internet, even decentralized apps rely on centralized servers. Orvexa flips that model completely:
+
+Websites as Living Smart Contracts: Using the AMRC-ASTRIX standard, developers can build fully interactive websites entirely as smart contracts. Every element—head, body, styles, and scripts—is embedded in the contract itself.
+
+Unstoppable Continuity: Websites run permanently on the blockchain, immune to censorship or shutdown. Ownership is fully sovereign, just like a digital asset.
+
+Dynamic Blockchain-Integrated Content: NFT galleries auto-update with the latest pieces, blogs dynamically change based on DAO votes, and marketplaces interact directly with assets and currencies—all executed transparently on-chain.
+
+Digital Identity & Sovereignty: Your domain isn’t just a yearly lease—it’s a true digital asset, fully owned and immutable on the blockchain.
+
+Launch Your Own Economy — Native Digital Assets
+
+Orvexa makes launching a new digital currency revolutionary and effortless, without creating a separate blockchain:
+
+Fully define your token using simple keywords:
+
+Total supply (total_supply)
+
+Decimal units (decimals)
+
+Flexible mining mechanisms (mining flexible_pow)
+
+Built-in security features (pos_security)
+
+Seamless Integration with AMRChain: Your new currency isn’t just a smart contract—it is a first-class citizen in the ecosystem, fully integrated with the OVM virtual machine and secured by AMRChain’s consensus.
+
+Unmatched Security & Reliability: The compiler automatically checks for vulnerabilities and adds advanced protection layers, reducing risk and ensuring safety by default.
+
+Orvexa Advantages: Empowering Developers Like Never Before
+
+Simplicity Drives Power: High-level tools allow developers to create assets, websites, and dApps without repetitive coding, accelerating innovation dramatically.
+
+Default Security: The compiler safeguards projects automatically against common exploits, giving developers peace of mind.
+
+Unrivaled Performance: The custom OVM executes complex operations—such as swaps or ZK-Proof verifications—efficiently and at high speed.
+
+Deep Ecosystem Integration: Direct access to IPFS, decentralized social networks like SiriusMedia, and digital identity systems makes Orvexa the ideal language for the next-generation decentralized internet.
+
+The Result: Build Your Entire Digital World
+
+With Orvexa, developers aren’t just writing smart contracts—they are creating complete digital universes: economy, websites, interactivity, and sovereign ownership. Every project becomes a digital citizen of AMRChain, benefiting from unmatched security, speed, and decentralization.
+
+Orvexa — not just a programming language, but the key to crafting digital universes where ideas become reality, and developers become architects of fully decentralized empires.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Phase 7</div>
+                <div class="timeline-content">
+                    <h3>Continuous Security Development</h3>
+                    <p> ensuring our network and users’ assets remain fully protected through ongoing updates, proactive threat prevention, and adaptive defenses against emerging risks.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-date">Phase 8</div>
+                <div class="timeline-content">
+                    <h3>Space Technology Integration</h3>
+                    <p>taking AMRChain beyond Earth, planning for a fully operational blockchain in space to power interplanetary digital ecosystems.</p>
+                </div>
+            </div>
+                        <div class="timeline-item">
+                <div class="timeline-date">Phase 9</div>
+                <div class="timeline-content">
+                    <h3>Next-Generation AI Development — Pioneering the Path to AGI</h3>
+                    <p>AMRChain is pioneering a next-generation, fully integrated AI, designed to operate beyond conventional chatbots and traditional AI models. This is a complete robotic intelligence system, capable of real-time interaction, multi-task execution, and autonomous decision-making — a level of awareness and adaptability that sets a new standard in artificial intelligence.
+
+Key Features & Capabilities
+
+Multi-Task Mastery:
+
+Executes complex operations across blockchain governance, digital assets, Omniverse management, and real-world applications.
+
+Capable of simultaneous monitoring, analysis, and optimization in multiple domains.
+
+Autonomous Awareness:
+
+Learns and adapts continuously from interactions and on-chain experiences.
+
+Makes independent decisions aligned with human goals, surpassing conventional AI limitations.
+
+Integrated AI-Robot:
+
+Not confined to conversation — it can analyze, execute, optimize, and innovate autonomously across both digital and physical environments.
+
+Serves as a true operational partner for the Omniverse, interplanetary applications, and smart infrastructure.
+
+Decentralized and Transparent:
+
+Built natively on AMRChain, distributed across the network, and verifiable on-chain.
+
+Ensures security, trust, and accountability while enabling community-driven development and oversight.
+
+Why AMRChain Enables This Next-Generation AI
+
+Decentralized Operating System (AMR OS): Transforms the network into a global supercomputer, scaling computational power infinitely without centralized infrastructure.
+
+Blockchain as Immutable Memory Record: Every decision, experiment, and inference is recorded permanently on-chain, creating a continuous, verifiable learning environment.
+
+Orvexa Virtual Machine (OVM) & Proof-of-AI Consensus: AI logic is native to the network, allowing the system to think, self-improve, and act autonomously as part of the blockchain itself.
+
+Impact & Vision
+
+Beyond Traditional AI: Surpasses chatbots and conventional AI, functioning as a fully autonomous, aware, and intelligent digital robot.
+
+Empowers the Omniverse: Drives smart cities, interplanetary logistics, immersive experiences, and autonomous digital economies.
+
+Community-Owned AGI: Decentralized, transparent, and aligned with human-centric goals, ensuring AI benefits humanity.
+
+Strategic Advantage: Early adoption of this AI provides unmatched analytical, operational, and cognitive power within the AMRChain ecosystem.
+
+
+"AMRChain is not just building AI — we are creating a self-aware, fully autonomous intelligence network, embedded directly in the blockchain, capable of interacting, learning, and acting across digital and physical worlds — today."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team">
+        <div class="section-header">
+            <h2 class="section-title">Our Team</h2>
+            <p class="section-subtitle">Two experts, one vision — combining economic mastery with technical excellence to build the future of decentralized ecosystems.</p>
+        </div>
+        
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="member-image">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+                <h3 class="member-name">Aynur J H</h3>
+                <p class="member-role">Founder, Company Director & CEO</p>
+                <p>Specialist in company management and financial planning. Responsible for team organization, resource management, and ensuring smooth operations across the network.</p>
+            </div>
+            
+            <div class="team-card">
+                <div class="member-image">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="member-name">Jihan</h3>
+                <p class="member-role">Founder  & COO </p>
+                <p>Blockchain expert with over 5 years of experience in developing decentralized financial technologies. Responsible for the network architecture and all technical aspects of the company.</p>
+            </div>
+            
+         
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="footer-logo">AMR SMART CHAIN</div>
+                <p class="footer-description">Building the world's first quantum-resistant Layer 1 blockchain, powered by cosmic mining and the first-ever digital precious metals and assets in history. This revolutionary network creates true digital scarcity while solving the instability of traditional cryptocurrencies through a unique economic system that values these digital metals and assets. The network's reserve, backed by these assets, is estimated at an unprecedented $100 trillion, enabling genuine financial freedom for everyone.</p>
+<div class="social-links">
+    <a href="https://x.com/0amrchain" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+    <a href="https://instagram.com/amrchain" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+<a href="https://discord.com/channels/1403148048946827325/1403148050314035252" target="_blank" title="Discord">
+    <i class="fab fa-discord"></i>
+</a>
+    <a href="https://www.youtube.com/@amrchain" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+    <a href="https://www.tiktok.com/@amrchain" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+    <a href="https://t.me/orcaamr" target="_blank" title="Telegram"><i class="fab fa-telegram"></i></a>
+<a href="https://github.com/amrsmartchain/AMR-SMART-CHAINS" target="_blank" title="GitHub">
+    <i class="fab fa-github"></i>
+</a>
+</div>
+
+            </div>
+            
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#vision">Vision</a></li>
+                    <li><a href="#technology">Technology</a></li>
+                    <li><a href="#tokenomics">Tokenomics</a></li>
+                    <li><a href="#roadmap">Roadmap</a></li>
+                    <li><a href="#team">Team</a></li>
+                    <li<a href="https://amrchain.dfz" target="_blank" rel="noopener noreferrer">amrchain.dfz</a></li>
+                </ul>
+            </div>
+            
+
+        
+        <div class="copyright">
+            <p>© 2025 AMR SMART CHAIN. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <script>
+        // Initialize Three.js for 3D background
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorArray = new Float32Array(particlesCount * 3);
+            
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+                colorArray[i] = Math.random();
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            camera.position.z = 5;
+            
+            // Add light
+            const light = new THREE.DirectionalLight(0x00ffff, 0.5);
+            light.position.set(0, 1, 1).normalize();
+            scene.add(light);
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.001;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Resize on window change
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Initialize tokenomics chart
+        function initTokenomicsChart() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 400;
+            document.getElementById('tokenomics-chart').appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+
+            // Updated data based on requirements
+            const data = [30, 50, 20];
+            const labels = ['Staking Power', 'Metals & Assets', 'Novarium Coin'];
+            const colors = ['#00D2FF', '#3A7BD5', '#FFD700'];
+
+            const total = data.reduce((acc, val) => acc + val, 0);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 30;
+
+            // Lighting effect
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+            let startAngle = 0;
+            for (let i = 0; i < data.length; i++) {
+                const sliceAngle = (2 * Math.PI * data[i]) / total;
+
+                // Draw slice
+                ctx.beginPath();
+                ctx.fillStyle = colors[i];
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.closePath();
+                ctx.fill();
+
+                // Lighting effect
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.beginPath();
+                ctx.fillStyle = gradient;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                // Add labels outside the circle with shadow for better visibility
+                const labelAngle = startAngle + sliceAngle / 2;
+                const labelX = centerX + (radius + 20) * Math.cos(labelAngle);
+                const labelY = centerY + (radius + 20) * Math.sin(labelAngle);
+
+                ctx.shadowColor = 'rgba(0,0,0,0.7)';
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                ctx.shadowBlur = 2;
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '16px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${labels[i]} (${data[i]}%)`, labelX, labelY);
+
+                ctx.shadowColor = 'transparent'; // Turn off shadow after text
+
+                startAngle += sliceAngle;
+            }
+
+            // Hole in the middle
+            ctx.beginPath();
+            ctx.fillStyle = '#0A0E17';
+            ctx.arc(centerX, centerY, radius * 0.5, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Clear text in the middle with stroke for better visibility
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 28px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#0A0E17';
+            ctx.strokeText('19M AMR', centerX, centerY);
+            ctx.fillText('19M AMR', centerX, centerY);
+        }
+
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particlesCount = 50;
+            
+            for (let i = 0; i < particlesCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size for particle
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position for particle
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                particle.style.left = `${x}%`;
+                particle.style.top = `${y}%`;
+                
+                // Random color for particle
+                const colors = ['#00D2FF', '#3A7BD5', '#FFD700', '#48BB78', '#FFFFFF'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Duration and delay for movement
+                const duration = 5 + Math.random() * 10;
+                const delay = Math.random() * 5;
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Scroll effects
+        function initScrollEffects() {
+            // Progress bar
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('progress-bar').style.width = scrolled + '%';
+                
+                // Scroll to top button
+                const scrollTopBtn = document.getElementById('scroll-top');
+                if (winScroll > 500) {
+                    scrollTopBtn.classList.add('active');
+                } else {
+                    scrollTopBtn.classList.remove('active');
+                }
+                
+                // Header effect
+                const header = document.getElementById('header');
+                if (winScroll > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+            
+            // Scroll to top
+            document.getElementById('scroll-top').addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // GSAP animations
+            gsap.registerPlugin(ScrollTrigger);
+            
+            gsap.utils.toArray('.tech-card, .team-card').forEach(item => {
+                gsap.fromTo(item, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    scrollTrigger: {
+                        trigger: item,
+                        start: 'top 85%',
+                        end: 'bottom 20%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+            
+            gsap.utils.toArray('.timeline-item').forEach(item => {
+                gsap.fromTo(item, {
+                    opacity: 0,
+                    x: item.classList.contains('left') ? -100 : 100
+                }, {
+                    opacity: 1,
+                    x: 0,
+                    duration: 1,
+                    scrollTrigger: {
+                        trigger: item,
+                        start: 'top 85%',
+                        end: 'bottom 20%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+        }
+        
+        // Mobile menu
+        function initMobileMenu() {
+            const hamburger = document.getElementById('hamburger');
+            const nav = document.getElementById('nav-menu');
+            
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                nav.classList.toggle('active');
+            });
+            
+            // Close menu when clicking on a link
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                });
+            });
+        }
+        
+        // Initialize everything when page loads
+        window.addEventListener('load', () => {
+            initThreeJS();
+            initTokenomicsChart();
+            createParticles();
+            initScrollEffects();
+            initMobileMenu();
+        });
+    </script>
+</body>
+</html>
